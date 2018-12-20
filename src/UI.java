@@ -24,6 +24,7 @@ import javax.swing.Timer;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
+
 /*
  * User Interface Klasse
  * De gebruiker activeert zijn account door zijn rijksregisternummer
@@ -36,6 +37,9 @@ import org.jdatepicker.impl.UtilDateModel;
  * en onder de 'Aanvragen raadplegen'-tab wordt informatie gegeven
  * over de lopende aanvragen
  *
+ * Een admin mag ook inloggen en krijgt een andere interface te zien.
+ * Hij heeft toegang tot 'Beheer scholen'-tab, 'Beheer wachtlijsten'-tab en 'Beheer data'-tab
+ *
  * @author Boris Dragnev, Victor Masscho, Jean Janssens, Edith Lust, Job van Lambalgen
  */
 public class UI extends javax.swing.JFrame  {
@@ -44,6 +48,8 @@ public class UI extends javax.swing.JFrame  {
     private Ouder gebruiker;
     private DefaultTableModel dtm;
     private School[] scholenData;
+    
+    public final int delayHuidigDL = 10;  //huidig deadline wordt met die waarde aangepast na een sorteerronde
     
     public UI(Main main) {
       this.main = main; 
@@ -65,6 +71,10 @@ public class UI extends javax.swing.JFrame  {
       timer.start();
     }
     
+    /*
+     * Methode dat bepaalt wat wordt getoond op het scherm naargelang de periode.
+     * 
+     */
     public final void voorwaardelijkOpmaak() {
       String inschrNietBegonnen = "<html>De inschrijvingsperiode<br>is nog niet begonnen!</html>";
       String capNietContr = "<html>Je mag de capaciteit<br>niet controleren.</html>";
@@ -221,6 +231,10 @@ public class UI extends javax.swing.JFrame  {
       }
     }
    
+    /*
+     * Hulpmethode voor bovenstaande methode, bepaalt de tekst van de labels in tab 'data beheer'
+     * 
+     */
     public void setDataLabelsText(TijdSchema ts) {
       DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
       if(ts.getStartDatum() == null) {
@@ -240,6 +254,10 @@ public class UI extends javax.swing.JFrame  {
       }
     }
     
+    /*
+     * Methode voor de datumkiezers in tab 'beheer data"
+     * 
+     */
     public final void createJDatePickers() {
       Properties p = new Properties();
       p.put("text.today", "today");
@@ -429,8 +447,6 @@ public class UI extends javax.swing.JFrame  {
     deadlinesBoodschap = new javax.swing.JLabel();
     jLabel21 = new javax.swing.JLabel();
     huidigDLLabel = new javax.swing.JLabel();
-    uitlogAdminTab = new javax.swing.JPanel();
-    uitloggenLinkLabel1 = new javax.swing.JLabel();
     wachtLijstenTab = new javax.swing.JPanel();
     editPanel = new javax.swing.JPanel();
     jPanel5 = new javax.swing.JPanel();
@@ -444,17 +460,14 @@ public class UI extends javax.swing.JFrame  {
     idVeldLaadLijst = new javax.swing.JTextField();
     jLabel1 = new javax.swing.JLabel();
     TerugKnop2 = new javax.swing.JButton();
+    uitlogAdminTab = new javax.swing.JPanel();
+    uitloggenLinkLabel1 = new javax.swing.JLabel();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     setTitle("Centrale toewijzing leerlingen");
     setBackground(new java.awt.Color(255, 255, 255));
     setExtendedState(MAXIMIZED_BOTH);
     setSize(new java.awt.Dimension(0, 0));
-    addWindowListener(new java.awt.event.WindowAdapter() {
-      public void windowClosing(java.awt.event.WindowEvent evt) {
-        onClose(evt);
-      }
-    });
     getContentPane().setLayout(new java.awt.GridBagLayout());
 
     MainPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -673,18 +686,20 @@ public class UI extends javax.swing.JFrame  {
     ActiveerSchermLayout.setHorizontalGroup(
       ActiveerSchermLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(ActiveerSchermLayout.createSequentialGroup()
-        .addContainerGap(254, Short.MAX_VALUE)
-        .addGroup(ActiveerSchermLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-          .addComponent(boodschapLabelAS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addGroup(javax.swing.GroupLayout.Alignment.LEADING, ActiveerSchermLayout.createSequentialGroup()
-            .addComponent(terugLinkLabelAS)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(activeerKnopAS))
-          .addComponent(gegevensOuderAS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        .addContainerGap(254, Short.MAX_VALUE))
-      .addGroup(ActiveerSchermLayout.createSequentialGroup()
-        .addComponent(logoLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 798, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addGap(0, 0, Short.MAX_VALUE))
+        .addContainerGap()
+        .addGroup(ActiveerSchermLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(ActiveerSchermLayout.createSequentialGroup()
+            .addGap(0, 244, Short.MAX_VALUE)
+            .addGroup(ActiveerSchermLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+              .addComponent(boodschapLabelAS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addGroup(javax.swing.GroupLayout.Alignment.LEADING, ActiveerSchermLayout.createSequentialGroup()
+                .addComponent(terugLinkLabelAS)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(activeerKnopAS))
+              .addComponent(gegevensOuderAS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 244, Short.MAX_VALUE))
+          .addComponent(logoLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addContainerGap())
     );
     ActiveerSchermLayout.setVerticalGroup(
       ActiveerSchermLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -966,11 +981,6 @@ public class UI extends javax.swing.JFrame  {
 
     zoekwoordLabel.setText("Zoekwoord:");
 
-    zoekwoordVeld.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        zoekwoordVeldActionPerformed(evt);
-      }
-    });
     zoekwoordVeld.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(java.awt.event.KeyEvent evt) {
         zoekwoordVeldKeyReleased(evt);
@@ -1302,11 +1312,6 @@ public class UI extends javax.swing.JFrame  {
     });
 
     veranderCapKnop.setText("Verander");
-    veranderCapKnop.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(java.awt.event.MouseEvent evt) {
-        veranderCapKnopClick(evt);
-      }
-    });
     veranderCapKnop.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         veranderCapKnopActionPerformed(evt);
@@ -1397,11 +1402,6 @@ public class UI extends javax.swing.JFrame  {
     jLabel8.setText("Email:");
 
     jTextField2.setFocusable(false);
-    jTextField2.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        jTextField2ActionPerformed(evt);
-      }
-    });
 
     jTextField3.setFocusable(false);
 
@@ -1507,18 +1507,8 @@ public class UI extends javax.swing.JFrame  {
     JTPAdmin.addTab("Beheer Scholen", scholenTab);
 
     tijdSchemaTab.setBackground(new java.awt.Color(255, 255, 255));
-    tijdSchemaTab.addFocusListener(new java.awt.event.FocusAdapter() {
-      public void focusGained(java.awt.event.FocusEvent evt) {
-        tijdSchemaTabFocusGained(evt);
-      }
-    });
 
     toepassenTijdSchemaKnop.setText("Toepassen");
-    toepassenTijdSchemaKnop.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(java.awt.event.MouseEvent evt) {
-        toepassenTijdSchemaKnopClicked(evt);
-      }
-    });
     toepassenTijdSchemaKnop.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         toepassenTijdSchemaKnopActionPerformed(evt);
@@ -1540,11 +1530,6 @@ public class UI extends javax.swing.JFrame  {
     timeIDL.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "09:00", "09:10", "09:20", "09:30", "09:40", "09:50", "10:00", "10:10", "10:20", "10:30", "10:40", "10:50", "11:00", "11:10", "11:20", "11:30", "11:40", "11:50", "12:00", "12:10", "12:20", "12:30", "12:40", "12:50", "13:00", "13:10", "13:20", "13:30", "13:40", "13:50", "14:00", "14:10", "14:20", "14:30", "14:40", "14:50", "15:00", "15:10", "15:20", "15:30", "15:40", "15:50", "16:00", "16:10", "16:20", "16:30", "16:40", "16:50", "17:00", "17:10", "17:20", "17:30", "17:40", "17:50", "18:00", "18:10", "18:20", "18:30", "18:40", "18:50", "19:00", "19:10", "19:20", "19:30", "19:40", "19:50", "20:00", "20:10", "20:20", "20:30", "20:40", "20:50", "21:00", "21:10", "21:20", "21:30", "21:40", "21:50", "22:00", "22:10", "22:20", "22:30", "22:40", "22:50", "23:00", "23:10", "23:20", "23:30", "23:40", "23:50", "00:00", "00:10", "00:20", "00:30", "00:40", "00:50", "01:00", "01:10", "01:20", "01:30", "01:40", "01:50", "02:00", "02:10", "02:20", "02:30", "02:40", "02:50", "03:00", "03:10", "03:20", "03:30", "03:40", "03:50", "04:00", "04:10", "04:20", "04:30", "04:40", "04:50", "05:00", "05:10", "05:20", "05:30", "05:40", "05:50", "06:00", "06:10", "06:20", "06:30", "06:40", "06:50", "07:00", "07:10", "07:20", "07:30", "07:40", "07:50", "08:00", "08:10", "08:20", "08:30", "08:40", "08:50", " " }));
 
     timeSD.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "09:00", "09:10", "09:20", "09:30", "09:40", "09:50", "10:00", "10:10", "10:20", "10:30", "10:40", "10:50", "11:00", "11:10", "11:20", "11:30", "11:40", "11:50", "12:00", "12:10", "12:20", "12:30", "12:40", "12:50", "13:00", "13:10", "13:20", "13:30", "13:40", "13:50", "14:00", "14:10", "14:20", "14:30", "14:40", "14:50", "15:00", "15:10", "15:20", "15:30", "15:40", "15:50", "16:00", "16:10", "16:20", "16:30", "16:40", "16:50", "17:00", "17:10", "17:20", "17:30", "17:40", "17:50", "18:00", "18:10", "18:20", "18:30", "18:40", "18:50", "19:00", "19:10", "19:20", "19:30", "19:40", "19:50", "20:00", "20:10", "20:20", "20:30", "20:40", "20:50", "21:00", "21:10", "21:20", "21:30", "21:40", "21:50", "22:00", "22:10", "22:20", "22:30", "22:40", "22:50", "23:00", "23:10", "23:20", "23:30", "23:40", "23:50", "00:00", "00:10", "00:20", "00:30", "00:40", "00:50", "01:00", "01:10", "01:20", "01:30", "01:40", "01:50", "02:00", "02:10", "02:20", "02:30", "02:40", "02:50", "03:00", "03:10", "03:20", "03:30", "03:40", "03:50", "04:00", "04:10", "04:20", "04:30", "04:40", "04:50", "05:00", "05:10", "05:20", "05:30", "05:40", "05:50", "06:00", "06:10", "06:20", "06:30", "06:40", "06:50", "07:00", "07:10", "07:20", "07:30", "07:40", "07:50", "08:00", "08:10", "08:20", "08:30", "08:40", "08:50", " " }));
-    timeSD.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        timeSDActionPerformed(evt);
-      }
-    });
 
     jLabel16.setText("Einddatum:");
 
@@ -1780,39 +1765,6 @@ public class UI extends javax.swing.JFrame  {
 
     JTPAdmin.addTab("Beheer Data", tijdSchemaTab);
 
-    uitloggenLinkLabel1.setForeground(java.awt.Color.blue);
-    uitloggenLinkLabel1.setText("<html><u>Log me uit</u></html>");
-    uitloggenLinkLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(java.awt.event.MouseEvent evt) {
-        uitloggenLinkLabelMouseClicked(evt);
-      }
-      public void mouseEntered(java.awt.event.MouseEvent evt) {
-        uitloggenLinkLabelMouseEntered(evt);
-      }
-      public void mouseExited(java.awt.event.MouseEvent evt) {
-        uitloggenLinkLabelMouseExited(evt);
-      }
-    });
-
-    javax.swing.GroupLayout uitlogAdminTabLayout = new javax.swing.GroupLayout(uitlogAdminTab);
-    uitlogAdminTab.setLayout(uitlogAdminTabLayout);
-    uitlogAdminTabLayout.setHorizontalGroup(
-      uitlogAdminTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(uitlogAdminTabLayout.createSequentialGroup()
-        .addGap(30, 30, 30)
-        .addComponent(uitloggenLinkLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(878, Short.MAX_VALUE))
-    );
-    uitlogAdminTabLayout.setVerticalGroup(
-      uitlogAdminTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(uitlogAdminTabLayout.createSequentialGroup()
-        .addGap(26, 26, 26)
-        .addComponent(uitloggenLinkLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(1639, Short.MAX_VALUE))
-    );
-
-    JTPAdmin.addTab("Uitloggen", uitlogAdminTab);
-
     wachtLijstenTab.setBackground(new java.awt.Color(255, 255, 255));
     wachtLijstenTab.setPreferredSize(new java.awt.Dimension(500, 394));
 
@@ -1867,12 +1819,6 @@ public class UI extends javax.swing.JFrame  {
     laadLijstKnop.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         laadLijstKnopActionPerformed(evt);
-      }
-    });
-
-    idVeldLaadLijst.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        idVeldLaadLijstActionPerformed(evt);
       }
     });
 
@@ -1963,6 +1909,39 @@ public class UI extends javax.swing.JFrame  {
 
     JTPAdmin.addTab("Beheer Wachtlijsten", wachtLijstenTab);
 
+    uitloggenLinkLabel1.setForeground(java.awt.Color.blue);
+    uitloggenLinkLabel1.setText("<html><u>Log me uit</u></html>");
+    uitloggenLinkLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(java.awt.event.MouseEvent evt) {
+        uitloggenLinkLabelMouseClicked(evt);
+      }
+      public void mouseEntered(java.awt.event.MouseEvent evt) {
+        uitloggenLinkLabelMouseEntered(evt);
+      }
+      public void mouseExited(java.awt.event.MouseEvent evt) {
+        uitloggenLinkLabelMouseExited(evt);
+      }
+    });
+
+    javax.swing.GroupLayout uitlogAdminTabLayout = new javax.swing.GroupLayout(uitlogAdminTab);
+    uitlogAdminTab.setLayout(uitlogAdminTabLayout);
+    uitlogAdminTabLayout.setHorizontalGroup(
+      uitlogAdminTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(uitlogAdminTabLayout.createSequentialGroup()
+        .addGap(30, 30, 30)
+        .addComponent(uitloggenLinkLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap(878, Short.MAX_VALUE))
+    );
+    uitlogAdminTabLayout.setVerticalGroup(
+      uitlogAdminTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(uitlogAdminTabLayout.createSequentialGroup()
+        .addGap(26, 26, 26)
+        .addComponent(uitloggenLinkLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap(1639, Short.MAX_VALUE))
+    );
+
+    JTPAdmin.addTab("Uitloggen", uitlogAdminTab);
+
     javax.swing.GroupLayout AdminSchermLayout = new javax.swing.GroupLayout(AdminScherm);
     AdminScherm.setLayout(AdminSchermLayout);
     AdminSchermLayout.setHorizontalGroup(
@@ -1995,12 +1974,13 @@ public class UI extends javax.swing.JFrame  {
     pack();
   }// </editor-fold>//GEN-END:initComponents
  
-  
+    /*
+     * Methode voor het updaten/maken van de tabel(len) met scholen.
+     * 
+     */
   public void updateTabel(JTable tabel) {
       scholenData = main.ophalenScholen();
-      /*
-       * Scholen toevoegen aan de tabel onder de 'Voorkeurformulier'-tab
-       */
+      
       this.dtm = (DefaultTableModel)tabel.getModel();
       this.dtm.setRowCount(0);
       for (School s : scholenData) {
@@ -2272,13 +2252,7 @@ public class UI extends javax.swing.JFrame  {
 	}
     }//GEN-LAST:event_doorgaanKnopISActionPerformed
 
-    /*
-     * Methode dat de actie bepaalt bij afsluiten
-     */
-    private void onClose(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_onClose
-      
-    }//GEN-LAST:event_onClose
-    
+   
     /*
      * Methode dat de actie bepaalt bij het opzoeken van een rijksregisternummer
      * in het activeerscherm
@@ -2401,7 +2375,7 @@ public class UI extends javax.swing.JFrame  {
      * tab 'Aanvragen raadplegen'
      */
     private void verwijderLinkLabelARTMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_verwijderLinkLabelARTMouseEntered
-        setCursor(Cursor.HAND_CURSOR);
+         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }//GEN-LAST:event_verwijderLinkLabelARTMouseEntered
 
     /*
@@ -2409,7 +2383,7 @@ public class UI extends javax.swing.JFrame  {
      * tab 'Aanvragen raadplegen'
      */
     private void verwijderLinkLabelARTMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_verwijderLinkLabelARTMouseExited
-        setCursor(Cursor.DEFAULT_CURSOR);
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }//GEN-LAST:event_verwijderLinkLabelARTMouseExited
 
     /*
@@ -2423,7 +2397,11 @@ public class UI extends javax.swing.JFrame  {
             boodschapLabelART.setText("Aanvraag verwijderd!");
         } 
     }//GEN-LAST:event_verwijderLinkLabelARTMouseClicked
-
+    
+    /*
+     * Methode dat de actie bepaalt bij klikken op 'Exporteer wachtlijsten' onder de tab
+     * 'Aanvragen raadplegen'
+     */
     private void exporteerKnopAdminActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exporteerKnopAdminActionPerformed
         if(main.exporteerWachtlijsten())
           boodschapLabelAdminWTab.setText("Exporteren gelukt!");
@@ -2438,14 +2416,23 @@ public class UI extends javax.swing.JFrame  {
         }    
     }//GEN-LAST:event_exporteerKnopAdminActionPerformed
 
+    /*
+     * Methode dat de actie bepaalt bij het zweven over 'Uitloggen'
+     */
     private void uitloggenLinkLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_uitloggenLinkLabelMouseEntered
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }//GEN-LAST:event_uitloggenLinkLabelMouseEntered
 
+    /*
+     * Methode dat de actie bepaalt bij het zweven over 'Uitloggen'
+     */
     private void uitloggenLinkLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_uitloggenLinkLabelMouseExited
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }//GEN-LAST:event_uitloggenLinkLabelMouseExited
 
+    /*
+     * Methode dat de actie bepaalt bij het klikken op 'Uitloggen'
+     */
     private void uitloggenLinkLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_uitloggenLinkLabelMouseClicked
         AdminScherm.setVisible(false);
         FormulierScherm.setVisible(false);
@@ -2463,6 +2450,10 @@ public class UI extends javax.swing.JFrame  {
         this.gebruiker = null;
     }//GEN-LAST:event_uitloggenLinkLabelMouseClicked
 
+    /*
+     * Methode dat de actie bepaalt bij het klikken op 'Sorteer wachtlijsten' in 
+     * de tab 'Beheer wachtlijsten'
+     */
     private void sorteerKnopAdminActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sorteerKnopAdminActionPerformed
         if(main.toewijzen()) {
           boodschapLabelAdminWTab.setText("<html>De recentste wachtlijsten werden gesorteerd."
@@ -2473,6 +2464,10 @@ public class UI extends javax.swing.JFrame  {
         }
     }//GEN-LAST:event_sorteerKnopAdminActionPerformed
 
+    /*
+     * Methode dat de actie bepaalt bij het klikken op 'Laden' in 
+     * de tab 'Beheer wachtlijsten'
+     */
     private void laadLijstKnopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_laadLijstKnopActionPerformed
       ArrayList<String> csvWachtLijst = main.laadWachtLijst(Integer.parseInt(idVeldLaadLijst.getText()));
       String[] lines = new String[csvWachtLijst.size()];
@@ -2484,14 +2479,17 @@ public class UI extends javax.swing.JFrame  {
       jList1.setListData(lines);
     }//GEN-LAST:event_laadLijstKnopActionPerformed
 
+    /*
+     * Methode dat de actie bepaalt bij het klikken op 'Laden' in 
+     * de tab 'Home' van de Formulierscherm.
+     */
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         FormulierScherm.setSelectedComponent(AanmeldingsFormulierTab);
     }//GEN-LAST:event_jButton1ActionPerformed
 
-  private void zoekwoordVeldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zoekwoordVeldActionPerformed
-    // TODO add your handling code here:
-  }//GEN-LAST:event_zoekwoordVeldActionPerformed
-
+    /*
+     * Methode dat de actie bepaalt bij het klikken op 'Terug' 
+     */
     private void TerugKnop2Clicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TerugKnop2Clicked
         AdminScherm.setVisible(false);
         InlogScherm.setVisible(true);
@@ -2504,18 +2502,10 @@ public class UI extends javax.swing.JFrame  {
         this.gebruiker = null;
     }//GEN-LAST:event_TerugKnop2Clicked
 
-  private void veranderCapKnopClick(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_veranderCapKnopClick
-   
-  }//GEN-LAST:event_veranderCapKnopClick
-
-  private void idVeldLaadLijstActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_idVeldLaadLijstActionPerformed
-    // TODO add your handling code here:
-  }//GEN-LAST:event_idVeldLaadLijstActionPerformed
-
-  private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
-    // TODO add your handling code here:
-  }//GEN-LAST:event_jTextField2ActionPerformed
-
+  /*
+   * Methode dat de actie bepaalt bij het klikken op 'Verander' in 'Beheer scholen'-tab van
+   * het adminscherm.
+   */
   private void veranderCapKnopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_veranderCapKnopActionPerformed
       if(scholenTabelAdmin.getSelectedRow() > -1) {
         if(nieuweCapaciteitVeld.getText().matches("[0-9]+")) {
@@ -2533,6 +2523,9 @@ public class UI extends javax.swing.JFrame  {
       }
   }//GEN-LAST:event_veranderCapKnopActionPerformed
 
+  /*
+   * Methode dat de actie bepaalt bij het veranderen van een tab in het adminscherm
+   */
   private void JTPAdminStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_JTPAdminStateChanged
     schoolGegevensPanel.setVisible(false);
     scholenTabelAdmin.clearSelection();
@@ -2546,6 +2539,9 @@ public class UI extends javax.swing.JFrame  {
     voorwaardelijkOpmaak();
   }//GEN-LAST:event_JTPAdminStateChanged
 
+  /*
+   * Methode dat de actie bepaalt bij het klikken op 'Controle uitvoeren' in de 'Beheer scholen'-tab
+   */
   private void controleerCapKnopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_controleerCapKnopActionPerformed
         switch(main.controleerCapaciteit()) {
           case  2:  boodschapCapAdmin.setText("Er zijn voldoende plaatsen.");
@@ -2565,16 +2561,11 @@ public class UI extends javax.swing.JFrame  {
         }
   }//GEN-LAST:event_controleerCapKnopActionPerformed
 
-    private void toepassenTijdSchemaKnopClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_toepassenTijdSchemaKnopClicked
-        
-    }//GEN-LAST:event_toepassenTijdSchemaKnopClicked
-
-  private void tijdSchemaTabFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tijdSchemaTabFocusGained
-    
-  }//GEN-LAST:event_tijdSchemaTabFocusGained
-
+  /*
+   * Methode dat de actie bepaalt bij het veranderen van het tijdschema door te klikken op 
+   * 'Toepassen' in de 'Beheer data'-tab.
+   */
   private void toepassenTijdSchemaKnopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toepassenTijdSchemaKnopActionPerformed
-        int delayHuidigDL = 10;
         LocalDateTime now = LocalDateTime.now();
         Year jaar = Year.of(now.getYear());
         SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
@@ -2686,12 +2677,6 @@ public class UI extends javax.swing.JFrame  {
         
   }//GEN-LAST:event_toepassenTijdSchemaKnopActionPerformed
 
-  private void timeSDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_timeSDActionPerformed
-    // TODO add your handling code here:
-  }//GEN-LAST:event_timeSDActionPerformed
-
-  
-  
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JPanel AanmeldingsFormulierTab;
   private javax.swing.JPanel ActiveerScherm;

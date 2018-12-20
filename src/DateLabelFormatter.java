@@ -1,7 +1,6 @@
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import javax.mail.internet.ParseException;
 import javax.swing.JFormattedTextField.AbstractFormatter;
 
 public class DateLabelFormatter extends AbstractFormatter {

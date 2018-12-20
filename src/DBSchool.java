@@ -10,14 +10,13 @@ import java.util.HashMap;
 
 /**
  *
- * @author bddra
+ * @author Boris Dragnev, Victor Masscho, Jean Janssens, Edith Lust, Job van Lambalgen
  */
 public class DBSchool {
 
   /*
    * Methode voor het ophalen van de tabel 'scholen' uit de databank 
    */
-
   public static HashMap<Integer, School> getScholen() throws DBException {
     Connection con = null;
     HashMap<Integer, School> scholenHashMap = new HashMap();

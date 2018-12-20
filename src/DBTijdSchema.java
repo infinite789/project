@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  *
- * @author jeanjanssens
+ * @author Boris Dragnev, Victor Masscho, Jean Janssens, Edith Lust, Job van Lambalgen
  */
 public class DBTijdSchema{
   

@@ -1,7 +1,6 @@
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.Year;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -10,19 +9,15 @@ import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.mail.MessagingException;
 
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-/**
+ * Bussiness/Logic klasse
+ * Hier worden de interacties tussen de actoren in het informatiesysteem
+ * gemodelleerd
  *
- * @author bddra
+ * @author Boris Dragnev, Victor Masscho, Jean Janssens, Edith Lust, Job van Lambalgen
  */
 public class Main {
 
@@ -35,14 +30,6 @@ public class Main {
 
   private final String ADMIN_ACCOUNT = "admin";
   private final String ADMIN_PASS = "admin";
-  private final LocalDateTime START_DATUM = LocalDateTime.of(
-          2018, Month.DECEMBER, 1, 0, 0, 0);//start inschrijvingen
-  private final LocalDateTime CAPACITEIT_DEADLINE = LocalDateTime.of(
-          2018, Month.DECEMBER, 20, 0, 0, 0);//start inschrijvingen
-  private LocalDateTime huidigDeadline = LocalDateTime.of(
-          2018, Month.DECEMBER, 30, 0, 0, 0);//dynamische deadline, die na elke 'sorteerronde' een andere waarde aanneemt 
-  private final LocalDateTime EIND_DATUM = LocalDateTime.of(
-          2019, Month.JANUARY, 30, 0, 0, 0);//einde periode 
 
   public Main() {
     try {
@@ -173,7 +160,10 @@ public class Main {
       return 0;
     }
   }
-
+  
+  /*
+   * Methode voor het controleren van de globale capaciteit
+   */
   public int controleerCapaciteit() {
     
     try {
@@ -205,6 +195,7 @@ public class Main {
       return 0;
     }
   }
+  
   /*
    * Methode voor het ophalen van een ouder op basis van 
    * zijn inloggegevens
@@ -224,6 +215,9 @@ public class Main {
     return o;
   }
 
+  /*
+   * Methode voor het ophalen van een ouder op basis van zijn rijksregisternummer;
+   */
   public Ouder ophalenOuder(String rnouder) {
     try {
       return DBOuder.getOuder(rnouder);
@@ -234,8 +228,8 @@ public class Main {
   }
   
   /*
-     * Methode voor het ophalen van een student op basis van 
-     * zijn rijksregisternummer
+   * Methode voor het ophalen van een student op basis van 
+   * zijn rijksregisternummer
    */
   public Student ophalenStudent(String rnstudent) {
     Student s;
@@ -249,8 +243,8 @@ public class Main {
   }
 
   /*
-     * Methode voor het ophalen van de studenten die bij een ouder 
-     * horen en niet op een school zitten op basis van zijn rijksregisternummer
+   * Methode voor het ophalen van de studenten die bij een ouder 
+   * horen en niet op een school zitten op basis van zijn rijksregisternummer
    */
   public ArrayList<Student> ophalenKinderen(String rnouder) {
     ArrayList<Student> studentenVanOuder;
@@ -278,6 +272,9 @@ public class Main {
     }
   }
   
+  /*
+   * Methode voor het ophalen van een school
+   */
   public School[] ophalenScholen() {
     try {
       scholen = DBSchool.getScholen();
@@ -294,6 +291,9 @@ public class Main {
     }
   }
   
+  /*
+   * Methode voor het ophalen van een aanvraag
+   */
   public ToewijzingsAanvraag ophalenAanvraag(String rnstudent) {
     try {
       return DBToewijzingsAanvraag.getAanvraag(rnstudent);
@@ -303,6 +303,9 @@ public class Main {
     return null;
   }
   
+  /*
+   * Methode voor het ophalen van het tijdschema
+   */
   public TijdSchema ophalenTijdSchema(int jaar) {
     try {
       tijdschema = DBTijdSchema.getTijdSchema(Year.of(jaar));
@@ -313,6 +316,9 @@ public class Main {
     return null;
   }
   
+  /*
+   * Methode voor het tijdschema aan te passen
+   */
   public void veranderTijdSchema(TijdSchema ts) {
     try {
       tijdschema = DBTijdSchema.getTijdSchema(Year.of(LocalDateTime.now().getYear()));
@@ -355,6 +361,9 @@ public class Main {
     }
   }
   
+  /*
+   * Methode voor de capaciteit van een gegeven school aan te passen
+   */
   public void veranderCapaciteit(int ID, int nieuweCap){
       try {
           DBSchool.setCapaciteit(ID, nieuweCap);
@@ -373,6 +382,7 @@ public class Main {
     try {
       toewijzingsaanvragen = DBToewijzingsAanvraag.getToewijzingsAanvragen();
       scholen = DBSchool.getScholen();
+      tijdschema = DBTijdSchema.getTijdSchema(Year.of(LocalDateTime.now().getYear()));
       ToewijzingsAanvraag ta = toewijzingsaanvragen.get(nummer);
       int vorigVoorkeur = 0;
       if(ta != null)
@@ -389,14 +399,14 @@ public class Main {
           scholen.get(vorigVoorkeur).getWachtLijst().remove(ta);
         int aantal = getBroersEnZussen(nummer, student, schoolID);
         ta.setBroersOfZussen(aantal);
-        long preferentie = bepaalPreferentie(ta);
+        long preferentie = bepaalPreferentie(ta, tijdschema);
         ta.setPreferentie(preferentie);
         for(ToewijzingsAanvraag twa : toewijzingsaanvragen.values()) {
           if(twa.getRijksregisterNummerOuder().equals(student.getRijksregisterNummerOuder())
              && !twa.getRijksregisterNummerStudent().equals(student.getRijksregisterNummer())
              && twa.getVoorkeur() == schoolID) {
             twa.setBroersOfZussen(twa.getBroersOfZussen()+1);
-            long pref = bepaalPreferentie(twa);
+            long pref = bepaalPreferentie(twa, tijdschema);
             twa.setPreferentie(pref);
           }
         }
@@ -415,6 +425,9 @@ public class Main {
     return -2;
   }
    
+  /*
+   * Methode voor het aantal broers en zussen van een gegeven student op een gegeven school
+   */ 
   public int getBroersEnZussen(int aanvraagnummer, Student student, int voorkeurschool) {
     int aantal = 0;
       //hashmaps zijn al geladen in methode indienenVoorkeur()
@@ -435,6 +448,9 @@ public class Main {
       return aantal;
   }
   
+  /*
+   * Methode voor het exporteren van de wachtlijsten
+   */ 
   public boolean exporteerWachtlijsten() {
     try {
       TijdSchema ts = ophalenTijdSchema(LocalDateTime.now().getYear());
@@ -473,6 +489,9 @@ public class Main {
     } 
   }
   
+  /*
+   * Methode voor het laden van de wachtlijsten eens al geexporteerd
+   */ 
   public ArrayList<String> laadWachtLijst(int ID) {
     try {
       ArrayList<String> csv = TextBestand.laadWachtLijst(DBSchool.getSchool(ID));
@@ -484,7 +503,11 @@ public class Main {
     }
   }
   
-  public void sorteerWachtLijst(ArrayList<ToewijzingsAanvraag> wachtLijst) {
+  /*
+   * Methode voor het sorteren van de wachtlijsten:
+   * hoogste preferenties op de kleinste indexen zetten
+   */ 
+  public void sorteerWachtLijst(ArrayList<ToewijzingsAanvraag> wachtLijst, TijdSchema ts) {
       for (int i = 0; i < wachtLijst.size(); i++) {
 	  ToewijzingsAanvraag lagerePref = wachtLijst.get(i);
 	  ToewijzingsAanvraag hogerePref = null;
@@ -492,11 +515,11 @@ public class Main {
 	  for (int j = i + 1; j < wachtLijst.size(); j++) {
 	      long preferentie;
 	      if (hogerePref == null) {
-		  preferentie = bepaalPreferentie(wachtLijst.get(i));
+		  preferentie = bepaalPreferentie(wachtLijst.get(i), ts);
 	      } else {
-		  preferentie = bepaalPreferentie(hogerePref);
+		  preferentie = bepaalPreferentie(hogerePref, ts);
 	      }
-	      long preferentie2 = bepaalPreferentie(wachtLijst.get(j));
+	      long preferentie2 = bepaalPreferentie(wachtLijst.get(j), ts);
 	      if (preferentie < preferentie2) {
 		  hogerePref = wachtLijst.get(j);
 		  lagePrefIndex = j;
@@ -509,6 +532,10 @@ public class Main {
       }
   }
   
+  /*
+   * Methode voor het toewijzen van de aanvragen aan scholen, hierbij wordt gesorteerd en 
+   * indien de capaciteit niet voldoende groot is worden er leerlingen afgewezen
+   */ 
   public boolean toewijzen() {
       int delayHuidigDeadline = 10;
       int afgewezenStudenten = 0;
@@ -548,7 +575,7 @@ public class Main {
             if(ta.getStatus().equals(Status.DEFINITIEF))
               isDefinitief = true;
           }
-          sorteerWachtLijst(wachtLijst);
+          sorteerWachtLijst(wachtLijst, tijdschema);
           if(isDefinitief) {
             succes = false;
           } else {
@@ -590,7 +617,7 @@ public class Main {
           sendEmail(email);
         }
         for(ToewijzingsAanvraag ta : toewijzingsaanvragen.values()) {
-          ta.setPreferentie(this.bepaalPreferentie(ta));
+          ta.setPreferentie(this.bepaalPreferentie(ta, tijdschema));
         }
         DBTijdSchema.setTijdSchema(tijdschema);
         DBToewijzingsAanvraag.bewaarToewijzingsAanvragen(toewijzingsaanvragen);
@@ -600,6 +627,9 @@ public class Main {
       return succes;        
   }
   
+  /*
+   * Methode voor het verzenden van een email
+   */ 
   public void sendEmail(Email email) {
     ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
               executor.execute(() -> {
@@ -612,6 +642,10 @@ public class Main {
                 }
               });
   }
+  
+  /*
+   * Methode voor het updaten van de Status, statussen op ONTWERP worden niet geupdate.
+   */ 
   public void updateStatus(Status s) {
     for (ToewijzingsAanvraag ta : toewijzingsaanvragen.values()) {
 	  if (!ta.getStatus().equals(Status.ONTWERP))
@@ -619,11 +653,14 @@ public class Main {
     }
   }
   
-  public long bepaalPreferentie(ToewijzingsAanvraag ta) {
-      long preferentie = huidigDeadline.toEpochSecond(ZoneOffset.UTC)
+  /*
+   * Methode dat de preferentie bepaalt gegeven een aanvraag en een tijdschema
+   */ 
+  public long bepaalPreferentie(ToewijzingsAanvraag ta, TijdSchema ts) {
+      long preferentie = ts.getInschrijvingenDeadline().toEpochSecond(ZoneOffset.UTC)
 	      - ta.getAanmeldingsTijdstip().toEpochSecond(ZoneOffset.UTC);
-      long bonusPunten = huidigDeadline.toEpochSecond(ZoneOffset.UTC)
-	      - START_DATUM.toEpochSecond(ZoneOffset.UTC);
+      long bonusPunten = ts.getInschrijvingenDeadline().toEpochSecond(ZoneOffset.UTC)
+	      - ts.getStartDatum().toEpochSecond(ZoneOffset.UTC);
       if (ta.getBroersOfZussen() > 0) {
 	  preferentie += bonusPunten*ta.getBroersOfZussen();
       }
@@ -631,6 +668,9 @@ public class Main {
 
   }
 
+  /*
+   * Methode dat nagaat of een school al eerder afgewezen werd
+   */ 
   public boolean schoolIsAfgewezen(int schoolID, int nummer) {
       try {
         toewijzingsaanvragen = DBToewijzingsAanvraag.getToewijzingsAanvragen();
@@ -645,6 +685,9 @@ public class Main {
       return false;
   }
 
+  /*
+   * Methode dat de huidige methode retourneert
+   */ 
   public Periode huidigPeriode() {
     try {
       TijdSchema ts = DBTijdSchema.getTijdSchema(Year.of(LocalDateTime.now().getYear()));

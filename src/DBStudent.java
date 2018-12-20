@@ -11,7 +11,7 @@ import java.util.HashMap;
  */
 /**
  *
- * @author bddra
+ * @author Boris Dragnev, Victor Masscho, Jean Janssens, Edith Lust, Job van Lambalgen
  */
 public class DBStudent {
 

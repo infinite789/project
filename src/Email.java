@@ -1,6 +1,5 @@
 
  
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,9 +22,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
  
 /**
- * This utility class provides a functionality to send an HTML e-mail message
- * with embedded images.
- * @author www.codejava.net
+ * @author Boris Dragnev, Victor Masscho, Jean Janssens, Edith Lust, Job van Lambalgen
  *
  */
 public class Email {
